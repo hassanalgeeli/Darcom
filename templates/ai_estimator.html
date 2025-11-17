@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}AI Price Estimator - داركم{% endblock %}
+
+{% block content %}
+    <section class="max-w-4xl mx-auto px-4 py-16 mt-16">
+        <h3 id="ai-title" class="text-4xl font-bold text-center mb-10">AI Price Estimator</h3>
+        <p id="ai-subtitle" class="text-center text-gray-600 dark:text-gray-400 mb-8">
+            Enter the property details to get an estimated price. (Note: This is a demo trained on limited data).
+        </p>
+        
+        <form id="prediction-form" class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {# Jinja2 variables passed from the Flask route: unique_values #}
+            
+            <div>
+                <label for="Region" class="block text-sm font-medium mb-2">Region</label>
+                <select id="Region" name="Region" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for region in unique_values.regions %}
+                        <option value="{{ region }}">{{ region }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="Neighborhood" class="block text-sm font-medium mb-2">Neighborhood</label>
+                <select id="Neighborhood" name="Neighborhood" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for hood in unique_values.neighborhoods %}
+                        <option value="{{ hood }}">{{ hood }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="Property_Type" class="block text-sm font-medium mb-2">Property Type</label>
+                <select id="Property_Type" name="Property_Type" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for p_type in unique_values.property_types %}
+                        <option value="{{ p_type }}">{{ p_type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="Area_sqm" class="block text-sm font-medium mb-2">Area (sqm)</label>
+                <input type="number" id="Area_sqm" name="Area_sqm" required
+                       class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="e.g., 350">
+            </div>
+
+            <div>
+                <label for="Bedrooms" class="block text-sm font-medium mb-2">Bedrooms</label>
+                <input type="number" id="Bedrooms" name="Bedrooms" required
+                       class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="e.g., 4">
+            </div>
+
+            <div>
+                <label for="Property_Age_Years" class="block text-sm font-medium mb-2">Property Age (Years)</label>
+                <input type="number" id="Property_Age_Years" name="Property_Age_Years" required
+                       class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="e.g., 5">
+            </div>
+
+            <div class="md:col-span-2">
+                <button type="submit" id="predict-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition-colors">
+                    Estimate Price
+                </button>
+            </div>
+        </form>
+
+        <div id="prediction-result" class="text-center mt-8 text-3xl font-bold text-blue-600 dark:text-blue-400">
+            </div>
+
+        <div id="recommendation-section" class="max-w-4xl mx-auto mt-12 hidden">
+            <h4 id="recommendation-title" class="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">
+                Similar Properties You Might Like
+            </h4>
+            
+            <div id="recommendation-cards" class="grid gap-6 sm:grid-cols-1 md:grid-cols-3">
+                </div>
+
+            <p id="no-recommendations" class="text-center text-gray-500 italic hidden">
+                No highly similar properties found in our current listings.
+            </p>
+        </div>
+    </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+   
+    const propertyImages = {
+        "Villa": "https://images.squarespace-cdn.com/content/v1/60840baec720c07d15e42317/1624149627717-8L85ZUJYR3DM1S98ZR7Q/1.jpg",
+        "Duplex": "https://villakazheh.com/wp-content/uploads/2025/08/Modern-Villa-with-Wooden-Elements-1920x1440.webp",
+        "Apartment": "https://i.pinimg.com/originals/ac/60/d5/ac60d5c89663d2f1f88dd4d2ba01de6c.jpg" 
+    };
+
+    
+    function updatePageContent(t) {
+        document.getElementById("ai-title").textContent = t.aiTitle;
+        document.getElementById("ai-subtitle").textContent = t.aiSubtitle;
+        document.getElementById("predict-btn").textContent = t.predictBtn;
+        document.getElementById("recommendation-title").textContent = t.recommendationTitle;
+        
+        
+        const currentRecs = JSON.parse(localStorage.getItem('currentRecommendations') || '[]');
+        if (currentRecs.length > 0) {
+           
+            renderRecommendations(currentRecs, localStorage.getItem("site-language") || "en");
+        }
+    }
+
+    
+    function createCard(property, currentLang) {
+        const title = property.Neighborhood;
+        const type = property.Property_Type;
+        const details = `${property.Bedrooms} ${currentLang === 'ar' ? 'غرف نوم' : 'Beds'} • ${property.Area_sqm} ${currentLang === 'ar' ? 'متر مربع' : 'sqm'}`;
+        const price = `SAR ${property.Price_SAR.toLocaleString()}`;
+        
+        const imageUrl = propertyImages[type] || "https://images.unsplash.com/photo-1560184897-90b7d0c75e3f?auto=format&fit=crop&w=800&q=80";
+
+        return `
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md border-t-4 border-blue-600 overflow-hidden">
+                <img src="${imageUrl}" alt="${type}" class="w-full h-40 object-cover">
+                <div class="p-4">
+                    <h5 class="text-lg font-semibold mb-1">${title} (${type})</h5>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-2">${details}</p>
+                    <p class="text-blue-600 font-bold">${price}</p>
+                </div>
+            </div>
+        `;
+    }
+
+    
+    function renderRecommendations(recommendations, currentLang) {
+       
+        const recommendationCards = document.getElementById("recommendation-cards");
+        const noRecommendations = document.getElementById("no-recommendations");
+        const recommendationSection = document.getElementById("recommendation-section");
+
+        recommendationCards.innerHTML = '';
+        noRecommendations.classList.add('hidden');
+        recommendationSection.classList.remove('hidden');
+
+        if (recommendations && recommendations.length > 0) {
+            const cardsHTML = recommendations.map(prop => createCard(prop, currentLang)).join('');
+            recommendationCards.innerHTML = cardsHTML;
+        } else {
+            noRecommendations.classList.remove('hidden');
+        }
+    }
+
+    
+   
+    
+    const predictionForm = document.getElementById("prediction-form");
+    const resultDiv = document.getElementById("prediction-result");
+
+    
+   
+
+   
+    setLanguage(localStorage.getItem("site-language") || "en");
+
+  
+    predictionForm.addEventListener("submit", async (e) => {
+        e.preventDefault(); 
+        
+        const currentLang = localStorage.getItem("site-language") || "en";
+        resultDiv.textContent = (currentLang === 'ar') ? '...جاري الحساب' : 'Calculating...';
+        resultDiv.style.color = ''; 
+        
+        
+        document.getElementById("recommendation-section").classList.add('hidden');
+        
+        const formData = new FormData(predictionForm);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+
+            if (result.predicted_price) {
+               
+                const formattedPrice = `SAR ${Math.round(result.predicted_price).toLocaleString()}`;
+                const resultText = (currentLang === 'ar') ? `السعر المقدر: ${formattedPrice}` : `Estimated Price: ${formattedPrice}`;
+                resultDiv.textContent = resultText;
+                
+               
+                localStorage.setItem('currentRecommendations', JSON.stringify(result.recommendations));
+                renderRecommendations(result.recommendations, currentLang);
+
+            } else {
+                throw new Error(result.error || 'Unknown error');
+            }
+
+        } catch (error) {
+            console.error("Prediction error:", error);
+            const errorText = (currentLang === 'ar') ? 'حدث خطأ. يرجى المحاولة مرة أخرى.' : 'An error occurred. Please try again.';
+            resultDiv.textContent = errorText;
+            resultDiv.style.color = 'red';
+            document.getElementById("recommendation-section").classList.add('hidden');
+        }
+    });
+
+</script>
+{% endblock %}

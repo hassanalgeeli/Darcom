@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}داركم{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class'
+      }
+    </script>
+    <style>
+      body {
+        padding-top: 70px; 
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-300 transition-colors duration-300">
+
+    {# --- NAVIGATION BAR --- #}
+    <nav class="fixed top-0 left-0 w-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-md shadow-sm z-50">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <h1 id="nav-logo" class="text-2xl font-bold text-blue-600 pl-4">داركم</h1>
+        
+        <ul class="hidden md:flex space-x-8 flex-row" style="direction: ltr;">
+          <li><a href="{{ url_for('home') }}" id="nav-home" class="hover:text-blue-600">Home</a></li>
+          <li><a href="#" id="nav-listings" class="hover:text-blue-600">Listings</a></li>
+          <li><a href="{{ url_for('ai_estimator_page') }}" id="nav-ai" class="hover:text-blue-600">AI</a></li>
+          <li><a href="#" id="nav-contact" class="hover:text-blue-600">Contact</a></li>
+        </ul>
+        <div class="flex items-center space-x-2">
+          
+          <div class="border rounded-md overflow-hidden flex text-sm">
+            <button id="lang-ar" class="px-3 py-1 bg-white dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">AR</button>
+            <button id="lang-en" class="px-3 py-1 bg-white dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">EN</button>
+          </div>
+          
+          <button class="md:hidden text-gray-600 hover:text-blue-600 focus:outline-none">☰</button>
+          
+          <button id="dark-toggle" class="ml-2 px-3 py-1 border rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">🌙</button>
+        </div>
+      </div>
+    </nav>
+
+    {# --- MAIN CONTENT BLOCK --- #}
+    {% block content %}{% endblock %}
+
+    {# --- FOOTER --- #}
+    <footer class="bg-gray-900 text-gray-300 py-10">
+      <div class="max-w-7xl mx-auto px-4 text-center md:text-left md:flex justify-between items-center">
+        <p id="footer-text">&copy; 2025 darcom</p>
+        <div class="space-x-6 mt-4 md:mt-0">
+          <a href="#" id="footer-privacy" class="hover:text-white">Privacy Policy</a>
+          <a href="#" id="footer-terms" class="hover:text-white">Terms of Service</a>
+        </div>
+      </div>
+    </footer>
+
+    {# --- SHARED JAVASCRIPT --- #}
+    <script>
+      const translations = {
+        en: {
+          navLogo: "Darcom", navHome: "Home", navListings: "Listings", navAI: "AI", navContact: "Contact",
+          heroTitle: "Find Your Home Today", heroSubtitle: "Browse listings to find the perfect place ", searchPlaceholder: "Search homes...",
+          searchBtn: "Browse", featuredTitle: "Featured Listings", card1Title: "Family Home", card1Desc: "4 Beds • 3 Baths • 2,800 sqft",
+          card2Title: "Luxury Villa", card2Desc: "5 Beds • 4 Baths • 3,500 sqft", card3Title: "Big House", card3Desc: "3 Beds • 2 Baths • 1,800 sqft",
+          aiTitle: "AI Price Estimator", aiSubtitle: "Enter the property details to get an estimated price. (Note: This is a demo trained on limited data).",
+          recommendationTitle: "Similar Properties You Might Like",
+          predictBtn: "Estimate Price",
+          footerText: "2025 Darcom.", footerPrivacy: "Privacy Policy", footerTerms: "Terms of Service", direction: "ltr"
+        },
+        ar: {
+          navLogo: "داركم", navHome: "الرئيسية", navListings: "القائمة", navAI: "الذكاء الاصطناعي", navContact: "اتصل بنا",
+          heroTitle: "ابحث عن منزلك اليوم", heroSubtitle: "تصفح القوائم للعثور على المكان المثالي لك ولعائلتك.", searchPlaceholder: "ابحث عن منزل...",
+          searchBtn: "تصفح القوائم", featuredTitle: "القوائم المميزة", card1Title: "منزل عائلي ", card1Desc: "4 غرف نوم • 3 حمامات • 2,800 قدم مربع",
+          card2Title: "بيت", card2Desc: "5 غرف نوم • 4 حمامات • 3,500 قدم مربع", card3Title: "بيت", card3Desc: "3 غرف نوم • 2 حمام • 1,800 قدم مربع",
+          aiTitle: "مقدر الأسعار بالذكاء الاصطناعي", aiSubtitle: "أدخل تفاصيل العقار للحصول على سعر تقديري. (ملاحظة: هذه نسخة تجريبية مبنية على بيانات محدودة).",
+          recommendationTitle: "عقارات مماثلة قد تعجبك",
+          predictBtn: "تقدير السعر",
+          footerText: "© 2025 داركم. جميع الحقوق محفوظة.", footerPrivacy: "سياسة الخصوصية", footerTerms: "شروط الخدمة", direction: "rtl"
+        }
+      };
+
+      function setLanguage(lang) {
+        const t = translations[lang];
+        document.body.dir = t.direction;
+
+        
+        document.getElementById("nav-logo").textContent = t.navLogo;
+        document.getElementById("nav-home").textContent = t.navHome;
+        document.getElementById("nav-listings").textContent = t.navListings;
+        document.getElementById("nav-ai").textContent = t.navAI;
+        document.getElementById("nav-contact").textContent = t.navContact;
+        document.getElementById("footer-text").textContent = t.footerText;
+        document.getElementById("footer-privacy").textContent = t.footerPrivacy;
+        document.getElementById("footer-terms").textContent = t.footerTerms;
+        
+       
+        if (typeof updatePageContent === 'function') {
+            updatePageContent(t);
+        }
+
+        localStorage.setItem("site-language", lang);
+      }
+
+      document.getElementById("lang-ar").addEventListener("click", () => setLanguage("ar"));
+      document.getElementById("lang-en").addEventListener("click", () => setLanguage("en"));
+
+      const savedLang = localStorage.getItem("site-language") || "en";
+      setLanguage(savedLang);
+
+      
+      const darkToggle = document.getElementById("dark-toggle");
+      darkToggle.addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+      });
+    </script>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

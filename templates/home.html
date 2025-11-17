@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+    
+    <section class="relative bg-cover bg-center h-[70vh]" style="background-image: url('https://images.unsplash.com/photo-1560184897-90b7d0c75e3f?auto=format&fit=crop&w=1600&q=80');">
+        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="text-center text-white px-6">
+                <h2 id="hero-title" class="text-4xl md:text-5xl font-bold mb-4">Find Your Home Today</h2>
+                <p id="hero-subtitle" class="mb-6 text-lg">Browse listings to find the perfect place</p>
+                <input id="search-placeholder" type="text" placeholder="Search homes..." class="px-4 py-2 rounded-md text-black" />
+                <button id="hero-search-btn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-md text-white font-semibold transition">Browse</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-4 py-16">
+        <h3 id="featured-title" class="text-3xl font-bold text-center mb-10">Featured Listings</h3>
+
+        <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        
+            <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden hover:shadow-xl transition">
+                <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80" alt="House 1" class="w-full h-56 object-cover">
+                <div class="p-5">
+                    <h4 id="card1-title" class="text-xl font-semibold mb-2">Family Home</h4>
+                    <p id="card1-desc" class="text-gray-600 dark:text-gray-300 mb-4">4 Beds • 3 Baths • 2,800 sqft</p>
+                    <p class="text-blue-600 font-bold text-lg mb-4">SAR450,000</p>
+                    <a href="#" class="text-blue-600 hover:underline font-medium">View Details →</a>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden hover:shadow-xl transition">
+                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80" alt="House 2" class="w-full h-56 object-cover">
+                <div class="p-5">
+                    <h4 id="card2-title" class="text-xl font-semibold mb-2">Luxury Villa</h4>
+                    <p id="card2-desc" class="text-gray-600 dark:text-gray-300 mb-4">5 Beds • 4 Baths • 3,500 sqft</p>
+                    <p class="text-blue-600 font-bold text-lg mb-4">SAR980,000</p>
+                    <a href="#" class="text-blue-600 hover:underline font-medium">View Details →</a>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden hover:shadow-xl transition">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" alt="House 3" class="w-full h-56 object-cover">
+                <div class="p-5">
+                    <h4 id="card3-title" class="text-xl font-semibold mb-2">Big House</h4>
+                    <p id="card3-desc" class="text-gray-600 dark:text-gray-300 mb-4">3 Beds • 2 Baths • 1,800 sqft</p>
+                    <p class="text-blue-600 font-bold text-lg mb-4">SAR320,000</p>
+                    <a href="#" class="text-blue-600 hover:underline font-medium">View Details →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    
+    function updatePageContent(t) {
+        document.getElementById("hero-title").textContent = t.heroTitle;
+        document.getElementById("hero-subtitle").textContent = t.heroSubtitle;
+        document.getElementById("search-placeholder").placeholder = t.searchPlaceholder;
+        document.getElementById("hero-search-btn").textContent = t.searchBtn;
+        document.getElementById("featured-title").textContent = t.featuredTitle;
+        document.getElementById("card1-title").textContent = t.card1Title;
+        document.getElementById("card1-desc").textContent = t.card1Desc;
+        document.getElementById("card2-title").textContent = t.card2Title;
+        document.getElementById("card2-desc").textContent = t.card2Desc;
+        document.getElementById("card3-title").textContent = t.card3Title;
+        document.getElementById("card3-desc").textContent = t.card3Desc;
+    }
+   
+    setLanguage(localStorage.getItem("site-language") || "en");
+</script>
+{% endblock %}
