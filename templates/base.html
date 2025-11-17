@@ -21,13 +21,13 @@
     {# --- NAVIGATION BAR --- #}
     <nav class="fixed top-0 left-0 w-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-md shadow-sm z-50">
       <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 id="nav-logo" class="text-2xl font-bold text-blue-600 pl-4">داركم</h1>
+        <a href="{{ url_for('home') }}"><h1 id="nav-logo" class="text-2xl font-bold text-blue-600 pl-4">داركم</h1></a>
         
         <ul class="hidden md:flex space-x-8 flex-row" style="direction: ltr;">
           <li><a href="{{ url_for('home') }}" id="nav-home" class="hover:text-blue-600">Home</a></li>
-          <li><a href="#" id="nav-listings" class="hover:text-blue-600">Listings</a></li>
+          
           <li><a href="{{ url_for('ai_estimator_page') }}" id="nav-ai" class="hover:text-blue-600">AI</a></li>
-          <li><a href="#" id="nav-contact" class="hover:text-blue-600">Contact</a></li>
+          
         </ul>
         <div class="flex items-center space-x-2">
           
@@ -52,7 +52,7 @@
         <p id="footer-text">&copy; 2025 darcom</p>
         <div class="space-x-6 mt-4 md:mt-0">
           <a href="#" id="footer-privacy" class="hover:text-white">Privacy Policy</a>
-          <a href="#" id="footer-terms" class="ml-1 hover:text-white">Terms of Service</a>
+          <a href="#" id="footer-terms" class="mr-4 hover:text-white">Terms of Service</a>
         </div>
       </div>
     </footer>
@@ -82,21 +82,21 @@
         }
       };
 
-      function setLanguage(lang) {
+     function setLanguage(lang) {
         const t = translations[lang];
         document.body.dir = t.direction;
 
         
         document.getElementById("nav-logo").textContent = t.navLogo;
         document.getElementById("nav-home").textContent = t.navHome;
-        document.getElementById("nav-listings").textContent = t.navListings;
+        // document.getElementById("nav-listings").textContent = t.navListings; // <-- FIXED
         document.getElementById("nav-ai").textContent = t.navAI;
-        document.getElementById("nav-contact").textContent = t.navContact;
+        // document.getElementById("nav-contact").textContent = t.navContact; // <-- FIXED
         document.getElementById("footer-text").textContent = t.footerText;
         document.getElementById("footer-privacy").textContent = t.footerPrivacy;
         document.getElementById("footer-terms").textContent = t.footerTerms;
         
-       
+        
         if (typeof updatePageContent === 'function') {
             updatePageContent(t);
         }
