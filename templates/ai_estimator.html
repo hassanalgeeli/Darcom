@@ -6,7 +6,7 @@
     <section class="max-w-4xl mx-auto px-4 py-16 mt-16">
         <h3 id="ai-title" class="text-4xl font-bold text-center mb-10">AI Price Estimator</h3>
         <p id="ai-subtitle" class="text-center text-gray-600 dark:text-gray-400 mb-8">
-            Enter the property details to get an estimated price.    
+            Enter the property details to get an estimated price. (Note: This is a demo trained on limited data).
         </p>
         
         <form id="prediction-form" class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -88,8 +88,9 @@
 
 {% block scripts %}
 <script>
-   
+    // --- 1. ALL FUNCTION DEFINITIONS ---
 
+    // Define arrays of actual images for variety
     const propertyImages = {
         "Villa": [
             "https://images.bayut.sa/thumbnails/4944767-800x600.jpeg",
@@ -110,26 +111,32 @@
         ]
     };
 
+    /**
+     * Updates page content for language translation.
+     */
     function updatePageContent(t) {
         document.getElementById("ai-title").textContent = t.aiTitle;
         document.getElementById("ai-subtitle").textContent = t.aiSubtitle;
         document.getElementById("predict-btn").textContent = t.predictBtn;
         document.getElementById("recommendation-title").textContent = t.recommendationTitle;
         
-        
+        // Re-render recommendations if they exist (e.g., if user switches lang AFTER generating)
         const currentRecs = JSON.parse(localStorage.getItem('currentRecommendations') || '[]');
         if (currentRecs.length > 0) {
             renderRecommendations(currentRecs, localStorage.getItem("site-language") || "en");
         }
     }
 
+    /**
+     * Creates the HTML for a single recommendation card.
+     */
     function createCard(property, currentLang) {
         const title = property.Neighborhood;
         const type = property.Property_Type;
         const details = `${property.Bedrooms} ${currentLang === 'ar' ? 'غرف نوم' : 'Beds'} • ${property.Area_sqm} ${currentLang === 'ar' ? 'متر مربع' : 'sqm'}`;
         const price = `SAR ${property.Price_SAR.toLocaleString()}`;
         
-        
+        // LOGIC: Pick a random image from the list
         const imageList = propertyImages[type] || propertyImages["Villa"];
         const randomImage = imageList[Math.floor(Math.random() * imageList.length)];
 
@@ -145,20 +152,25 @@
         `;
     }
 
+    /**
+     * Renders all recommendation cards into the DOM.
+     */
     function renderRecommendations(recommendations, currentLang) {
         const recommendationCards = document.getElementById("recommendation-cards");
         const noRecommendations = document.getElementById("no-recommendations");
         const recommendationSection = document.getElementById("recommendation-section");
 
         recommendationCards.innerHTML = '';
-        noRecommendations.classList.add('hidden');
+        
+        // IMPORTANT: Show the section
         recommendationSection.classList.remove('hidden');
 
         if (recommendations && recommendations.length > 0) {
             const cardsHTML = recommendations.map(prop => createCard(prop, currentLang)).join('');
             recommendationCards.innerHTML = cardsHTML;
+            noRecommendations.classList.add('hidden');
             
-            
+            // Smooth scroll to recommendations
             recommendationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
             noRecommendations.classList.remove('hidden');
@@ -166,14 +178,20 @@
     }
 
     
-    
+    // --- 2. GET DOM ELEMENTS ---
     const predictionForm = document.getElementById("prediction-form");
     const resultDiv = document.getElementById("prediction-result");
 
     
+    // --- 3. EXECUTABLE CODE ---
     
+    // ** CRITICAL FIX: Clear previous recommendations on page load **
+    localStorage.removeItem('currentRecommendations');
+    
+    // Set initial language
     setLanguage(localStorage.getItem("site-language") || "en");
 
+    // Attach the submit listener
     predictionForm.addEventListener("submit", async (e) => {
         e.preventDefault(); 
         
@@ -181,6 +199,7 @@
         resultDiv.textContent = (currentLang === 'ar') ? '...جاري الحساب' : 'Calculating...';
         resultDiv.style.color = ''; 
         
+        // Hide old recommendations while loading
         document.getElementById("recommendation-section").classList.add('hidden');
         
         const formData = new FormData(predictionForm);
@@ -202,7 +221,10 @@
                 const resultText = (currentLang === 'ar') ? `السعر المقدر: ${formattedPrice}` : `Estimated Price: ${formattedPrice}`;
                 resultDiv.textContent = resultText;
                 
+                // Save current recommendations so they stick if we change language
                 localStorage.setItem('currentRecommendations', JSON.stringify(result.recommendations));
+                
+                // Show them now
                 renderRecommendations(result.recommendations, currentLang);
 
             } else {
