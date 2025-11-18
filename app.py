@@ -29,7 +29,7 @@ data = [
     {"Region": "West Riyadh", "Neighborhood": "Al Uraija", "Property_Type": "Villa", "Area_sqm": 410, "Bedrooms": 5, "Property_Age_Years": 4, "Price_SAR": 2050000}
 ]
 
-df = pd.DataFrame(data)
+df = pd.DataFrame( data)
 
 
 def train_model():
@@ -49,13 +49,13 @@ def train_model():
         ('model', RandomForestRegressor(n_estimators=10, random_state=42))
     ])
 
-    model_pipeline.fit(X, y)
+    model_pipeline.fit(X, y )
     print("--- Model has been trained ---")
     return model_pipeline
 
 
 app = Flask(__name__)
-model = train_model()
+model = train_model( )
 UNIQUE_VALUES = {
     'regions': sorted(df['Region'].unique().tolist()),
     'neighborhoods': sorted(df['Neighborhood'].unique().tolist()),
@@ -66,11 +66,13 @@ UNIQUE_VALUES = {
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home.html' )
 
-@app.route('/ai-estimator')
-def ai_estimator_page():
-    return render_template('ai_estimator.html', unique_values=UNIQUE_VALUES)
+@app.route('/ai-estimator' )
+def ai_estimator_page( ):
+
+    return render_template('ai_estimator.html', unique_values=UNIQUE_VALUES )
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -81,28 +83,41 @@ def predict():
         for col in ['Area_sqm', 'Bedrooms', 'Property_Age_Years']:
             input_df[col] = pd.to_numeric(input_df[col])
 
-       
+        
         prediction = model.predict(input_df)
         predicted_price = prediction[0]
 
-    
-        target_region = data['Region']
-        target_type = data['Property_Type']
-
-        recommendations_df = df[
-            (df['Region'] == target_region) & 
-            (df['Property_Type'] == target_type)
-        ]
         
+        df_scored = df.copy()
+        df_scored['Price_Difference'] = abs(df_scored['Price_SAR'] - predicted_price)
         
-        recommendations_df = recommendations_df.copy()
-        recommendations_df['Price_Difference'] = abs(recommendations_df['Price_SAR'] - predicted_price)
-        recommendations_df = recommendations_df.sort_values(by='Price_Difference')
+        user_region = data['Region']
+        user_type = data['Property_Type']
 
        
-        top_recommendations = recommendations_df.head(3).to_dict('records')
+        tier1 = df_scored[
+            (df_scored['Region'] == user_region) & 
+            (df_scored['Property_Type'] == user_type)
+        ].sort_values('Price_Difference')
 
         
+        tier2 = df_scored[
+            (df_scored['Property_Type'] == user_type) & 
+            (df_scored['Region'] != user_region)
+        ].sort_values('Price_Difference')
+
+        
+        tier3 = df_scored[
+            (df_scored['Region'] == user_region) & 
+            (df_scored['Property_Type'] != user_type)
+        ].sort_values('Price_Difference')
+
+        
+        recommendations_combined = pd.concat([tier1, tier2, tier3])
+
+        
+        top_recommendations = recommendations_combined.head(3).to_dict('records')
+
         return jsonify({
             'predicted_price': predicted_price,
             'recommendations': top_recommendations
@@ -111,7 +126,6 @@ def predict():
     except Exception as e:
         print(f"Error during prediction or recommendation: {e}")
         return jsonify({'error': str(e)}), 400
-
 
 if __name__ == '__main__':
     app.run(debug=True)

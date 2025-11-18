@@ -89,13 +89,27 @@
 {% block scripts %}
 <script>
    
+
     const propertyImages = {
-        "Villa": "https://images.squarespace-cdn.com/content/v1/60840baec720c07d15e42317/1624149627717-8L85ZUJYR3DM1S98ZR7Q/1.jpg",
-        "Duplex": "https://villakazheh.com/wp-content/uploads/2025/08/Modern-Villa-with-Wooden-Elements-1920x1440.webp",
-        "Apartment": "https://i.pinimg.com/originals/ac/60/d5/ac60d5c89663d2f1f88dd4d2ba01de6c.jpg" 
+        "Villa": [
+            "https://images.bayut.sa/thumbnails/4944767-800x600.jpeg",
+            "https://images.bayut.sa/thumbnails/5262579-800x600.jpeg",
+            "https://smddecoration.com/smdturkiyedecoration/vi/blog/6505/%D8%B4%D8%B1%D9%83%D8%A9%20%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D9%81%D9%84%D9%84.webp",
+            "https://glamorous-design.org/wp-content/uploads/2021/06/left-elevation-03-1024x667.jpg"
+        ],
+        "Duplex": [
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNAHF-0qZgsERhhe9SDuchLrvcGK7A2eAL5A&s",
+            "https://cdn.salla.sa/dPPBoj/L6NDcUUpYLoF31h4iePhDqPMtvSRCHz2A1B6hWgp.jpg",
+            "https://cdn.salla.sa/dPPBoj/4EpYjHCC7yGiMLfKqWEjIiRegaaaYjB8gXBlBP2R.jpg"
+        ],
+        "Apartment": [
+            "https://i.pinimg.com/originals/ac/60/d5/ac60d5c89663d2f1f88dd4d2ba01de6c.jpg",
+            "https://ms.hsoubcdn.com/uploads/thumbnails/2622412/64bd0215cb1de/%D8%AA%D8%B5%D9%85%D9%8A%D9%85-%D8%AE%D8%A7%D8%B1%D8%AC%D9%8A-%D8%AA%D8%B5%D9%85%D9%8A%D9%85-%D9%88%D8%A7%D8%AC%D9%87%D8%A7%D8%AA-%D8%AA%D8%B5%D9%85%D9%8A%D9%85-%D9%85%D8%B9%D9%85%D8%A7%D8%B1%D9%8A-%D8%B9%D9%85%D8%A7%D8%B1%D8%A9-%D8%B3%D9%83%D9%86%D9%8A%D8%A9-%D8%A5%D8%B8%D9%87%D8%A7%D8%B1-%D9%85%D8%B9%D9%85%D8%A7%D8%B1%D9%8A-%D8%A5%D8%B8%D9%87%D8%A7%D8%B1-%D8%B1%D9%86%D8%AF%D8%B1-6.jpg",
+            "https://i.pinimg.com/736x/3a/ff/e3/3affe368313ca3bce59a71da4af4f256.jpg",
+            "https://media.discordapp.net/attachments/1433448987339260088/1440380104340537374/Screenshot_2025-11-18_at_19-35-48_--2023.jpeg_JPEG_Image_1280_946_pixels_Scaled_59.png?ex=691df201&is=691ca081&hm=0a0959cfe73ebb3ba01a6da3ca111610623ebdb73116cea2fe947c02f3cc27bc&=&format=webp&quality=lossless&width=1154&height=744"
+        ]
     };
 
-    
     function updatePageContent(t) {
         document.getElementById("ai-title").textContent = t.aiTitle;
         document.getElementById("ai-subtitle").textContent = t.aiSubtitle;
@@ -105,35 +119,33 @@
         
         const currentRecs = JSON.parse(localStorage.getItem('currentRecommendations') || '[]');
         if (currentRecs.length > 0) {
-           
             renderRecommendations(currentRecs, localStorage.getItem("site-language") || "en");
         }
     }
 
-    
     function createCard(property, currentLang) {
         const title = property.Neighborhood;
         const type = property.Property_Type;
         const details = `${property.Bedrooms} ${currentLang === 'ar' ? 'غرف نوم' : 'Beds'} • ${property.Area_sqm} ${currentLang === 'ar' ? 'متر مربع' : 'sqm'}`;
         const price = `SAR ${property.Price_SAR.toLocaleString()}`;
         
-        const imageUrl = propertyImages[type] || "https://images.unsplash.com/photo-1560184897-90b7d0c75e3f?auto=format&fit=crop&w=800&q=80";
+        
+        const imageList = propertyImages[type] || propertyImages["Villa"];
+        const randomImage = imageList[Math.floor(Math.random() * imageList.length)];
 
         return `
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md border-t-4 border-blue-600 overflow-hidden">
-                <img src="${imageUrl}" alt="${type}" class="w-full h-40 object-cover">
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-md border-t-4 border-blue-600 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <img src="${randomImage}" alt="${type}" class="w-full h-48 object-cover">
                 <div class="p-4">
-                    <h5 class="text-lg font-semibold mb-1">${title} (${type})</h5>
+                    <h5 class="text-lg font-semibold mb-1 text-gray-800 dark:text-gray-200">${title} (${type})</h5>
                     <p class="text-gray-500 dark:text-gray-400 text-sm mb-2">${details}</p>
-                    <p class="text-blue-600 font-bold">${price}</p>
+                    <p class="text-blue-600 font-bold text-lg">${price}</p>
                 </div>
             </div>
         `;
     }
 
-    
     function renderRecommendations(recommendations, currentLang) {
-       
         const recommendationCards = document.getElementById("recommendation-cards");
         const noRecommendations = document.getElementById("no-recommendations");
         const recommendationSection = document.getElementById("recommendation-section");
@@ -145,31 +157,29 @@
         if (recommendations && recommendations.length > 0) {
             const cardsHTML = recommendations.map(prop => createCard(prop, currentLang)).join('');
             recommendationCards.innerHTML = cardsHTML;
+            
+            
+            recommendationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
             noRecommendations.classList.remove('hidden');
         }
     }
 
     
-   
     
     const predictionForm = document.getElementById("prediction-form");
     const resultDiv = document.getElementById("prediction-result");
 
     
-   
-
-   
+    
     setLanguage(localStorage.getItem("site-language") || "en");
 
-  
     predictionForm.addEventListener("submit", async (e) => {
         e.preventDefault(); 
         
         const currentLang = localStorage.getItem("site-language") || "en";
         resultDiv.textContent = (currentLang === 'ar') ? '...جاري الحساب' : 'Calculating...';
         resultDiv.style.color = ''; 
-        
         
         document.getElementById("recommendation-section").classList.add('hidden');
         
@@ -179,25 +189,19 @@
         try {
             const response = await fetch('/predict', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!response.ok) throw new Error('Network response was not ok');
 
             const result = await response.json();
 
             if (result.predicted_price) {
-               
                 const formattedPrice = `SAR ${Math.round(result.predicted_price).toLocaleString()}`;
                 const resultText = (currentLang === 'ar') ? `السعر المقدر: ${formattedPrice}` : `Estimated Price: ${formattedPrice}`;
                 resultDiv.textContent = resultText;
                 
-               
                 localStorage.setItem('currentRecommendations', JSON.stringify(result.recommendations));
                 renderRecommendations(result.recommendations, currentLang);
 
@@ -210,9 +214,7 @@
             const errorText = (currentLang === 'ar') ? 'حدث خطأ. يرجى المحاولة مرة أخرى.' : 'An error occurred. Please try again.';
             resultDiv.textContent = errorText;
             resultDiv.style.color = 'red';
-            document.getElementById("recommendation-section").classList.add('hidden');
         }
     });
-
 </script>
 {% endblock %}
