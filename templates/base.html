@@ -14,32 +14,43 @@
       body {
         padding-top: 70px; 
       }
+      
+      #mobile-menu {
+        transition: all 0.3s ease-in-out;
+      }
     </style>
   </head>
   <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-300 transition-colors duration-300">
 
     {# --- NAVIGATION BAR --- #}
-    <nav class="fixed top-0 left-0 w-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-md shadow-sm z-50">
+    <nav class="fixed top-0 left-0 w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-sm z-50">
       <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <a href="{{ url_for('home') }}"><h1 id="nav-logo" class="text-2xl font-bold text-blue-600 pl-4">داركم</h1></a>
         
         <ul class="hidden md:flex space-x-8 flex-row" style="direction: ltr;">
           <li><a href="{{ url_for('home') }}" id="nav-home" class="font-bold hover:text-blue-600">Home</a></li>
-          
           <li><a href="{{ url_for('ai_estimator_page') }}" id="nav-ai" class="font-bold hover:text-blue-600">AI</a></li>
-          
         </ul>
+
         <div class="flex items-center space-x-2">
-          
           <div class="border rounded-md overflow-hidden flex text-sm">
             <button id="lang-ar" class="px-3 py-1 bg-white dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">AR</button>
             <button id="lang-en" class="px-3 py-1 bg-white dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">EN</button>
           </div>
           
-          <button class="md:hidden text-gray-600 hover:text-blue-600 focus:outline-none">☰</button>
+          <button id="mobile-menu-btn" class="md:hidden text-gray-600 hover:text-blue-600 focus:outline-none text-2xl px-2">
+            ☰
+          </button>
           
           <button id="dark-toggle" class="ml-2 px-3 py-1 border rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">🌙</button>
         </div>
+      </div>
+
+      <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 border-t dark:border-gray-700 absolute w-full left-0">
+        <ul class="flex flex-col items-center py-4 space-y-4 font-semibold">
+            <li><a href="{{ url_for('home') }}" id="mob-nav-home" class="block w-full text-center py-2 hover:text-blue-600">Home</a></li>
+            <li><a href="{{ url_for('ai_estimator_page') }}" id="mob-nav-ai" class="block w-full text-center py-2 hover:text-blue-600">AI</a></li>
+        </ul>
       </div>
     </nav>
 
@@ -48,11 +59,11 @@
 
     {# --- FOOTER --- #}
     <footer class="bg-gray-900 text-gray-300 py-10">
-      <div class="max-w-7xl mx-auto px-4 text-center md:text-left md:flex justify-between items-center">
-        <p id="footer-text">&copy; 2025 darcom</p>
-        <div class="space-x-6 mt-4 md:mt-0">
+      <div class="max-w-7xl mx-auto px-4 text-center md:text-left md:flex flex-col md:flex-row justify-between items-center">
+        <p id="footer-text" class="mb-4 md:mb-0">&copy; 2025 darcom</p>
+        <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-6">
           <a href="#" id="footer-privacy" class="hover:text-white">Privacy Policy</a>
-          <a href="#" id="footer-terms" class="mr-4 hover:text-white">Terms of Service</a>
+          <a href="#" id="footer-terms" class="hover:text-white md:mr-4">Terms of Service</a>
         </div>
       </div>
     </footer>
@@ -61,7 +72,7 @@
     <script>
       const translations = {
         en: {
-          navLogo: "Darcom", navHome: "Home", navListings: "Listings", navAI: "AI", navContact: "Contact",
+          navLogo: "Darcom", navHome: "Home", navAI: "AI",
           heroTitle: "Find Your Home Today", heroSubtitle: "Browse listings to find the perfect place ", searchPlaceholder: "Search homes...",
           searchBtn: "Browse", featuredTitle: "Featured Listings", card1Title: "Family Home", card1Desc: "4 Beds • 3 Baths • 280 sqm",
           card2Title: "Luxury Villa", card2Desc: "5 Beds • 4 Baths • 350 sqm", card3Title: "Big House", card3Desc: "3 Beds • 2 Baths • 180 sqm",
@@ -71,7 +82,7 @@
           footerText: "2025 Darcom", footerPrivacy: "Privacy Policy", footerTerms: "Terms of Service", direction: "ltr"
         },
         ar: {
-          navLogo: "داركم", navHome: "الرئيسية", navListings: "القائمة", navAI: "الذكاء الاصطناعي", navContact: "اتصل بنا",
+          navLogo: "داركم", navHome: "الرئيسية", navAI: "الذكاء الاصطناعي",
           heroTitle: "ابحث عن منزلك اليوم", heroSubtitle: "تصفح القوائم للعثور على المكان المثالي لك ولعائلتك.", searchPlaceholder: "ابحث عن منزل...",
           searchBtn: "تصفح القوائم", featuredTitle: "القوائم المميزة", card1Title: "منزل عائلي ", card1Desc: "4 غرف نوم • 3 حمامات • 2,800 قدم مربع",
           card2Title: "بيت", card2Desc: "5 غرف نوم • 4 حمامات • 3,500 قدم مربع", card3Title: "بيت", card3Desc: "3 غرف نوم • 2 حمام • 1,800 قدم مربع",
@@ -82,20 +93,22 @@
         }
       };
 
-     function setLanguage(lang) {
+      function setLanguage(lang) {
         const t = translations[lang];
         document.body.dir = t.direction;
 
-        
         document.getElementById("nav-logo").textContent = t.navLogo;
         document.getElementById("nav-home").textContent = t.navHome;
-        // document.getElementById("nav-listings").textContent = t.navListings; // <-- FIXED
         document.getElementById("nav-ai").textContent = t.navAI;
-        // document.getElementById("nav-contact").textContent = t.navContact; // <-- FIXED
+
+      
+        document.getElementById("mob-nav-home").textContent = t.navHome;
+        document.getElementById("mob-nav-ai").textContent = t.navAI;
+
+        
         document.getElementById("footer-text").textContent = t.footerText;
         document.getElementById("footer-privacy").textContent = t.footerPrivacy;
         document.getElementById("footer-terms").textContent = t.footerTerms;
-        
         
         if (typeof updatePageContent === 'function') {
             updatePageContent(t);
@@ -114,6 +127,14 @@
       const darkToggle = document.getElementById("dark-toggle");
       darkToggle.addEventListener("click", () => {
         document.documentElement.classList.toggle("dark");
+      });
+
+      
+      const btn = document.getElementById("mobile-menu-btn");
+      const menu = document.getElementById("mobile-menu");
+
+      btn.addEventListener("click", () => {
+        menu.classList.toggle("hidden");
       });
     </script>
 

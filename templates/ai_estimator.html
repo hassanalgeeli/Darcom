@@ -88,9 +88,7 @@
 
 {% block scripts %}
 <script>
-    // --- 1. ALL FUNCTION DEFINITIONS ---
-
-    // Define arrays of actual images for variety
+    
     const propertyImages = {
         "Villa": [
             "https://images.bayut.sa/thumbnails/4944767-800x600.jpeg",
@@ -111,32 +109,28 @@
         ]
     };
 
-    /**
-     * Updates page content for language translation.
-     */
+    
     function updatePageContent(t) {
         document.getElementById("ai-title").textContent = t.aiTitle;
         document.getElementById("ai-subtitle").textContent = t.aiSubtitle;
         document.getElementById("predict-btn").textContent = t.predictBtn;
         document.getElementById("recommendation-title").textContent = t.recommendationTitle;
         
-        // Re-render recommendations if they exist (e.g., if user switches lang AFTER generating)
+        
         const currentRecs = JSON.parse(localStorage.getItem('currentRecommendations') || '[]');
         if (currentRecs.length > 0) {
             renderRecommendations(currentRecs, localStorage.getItem("site-language") || "en");
         }
     }
 
-    /**
-     * Creates the HTML for a single recommendation card.
-     */
+    
     function createCard(property, currentLang) {
         const title = property.Neighborhood;
         const type = property.Property_Type;
         const details = `${property.Bedrooms} ${currentLang === 'ar' ? 'غرف نوم' : 'Beds'} • ${property.Area_sqm} ${currentLang === 'ar' ? 'متر مربع' : 'sqm'}`;
         const price = `SAR ${property.Price_SAR.toLocaleString()}`;
         
-        // LOGIC: Pick a random image from the list
+        
         const imageList = propertyImages[type] || propertyImages["Villa"];
         const randomImage = imageList[Math.floor(Math.random() * imageList.length)];
 
@@ -152,9 +146,7 @@
         `;
     }
 
-    /**
-     * Renders all recommendation cards into the DOM.
-     */
+    
     function renderRecommendations(recommendations, currentLang) {
         const recommendationCards = document.getElementById("recommendation-cards");
         const noRecommendations = document.getElementById("no-recommendations");
@@ -162,7 +154,7 @@
 
         recommendationCards.innerHTML = '';
         
-        // IMPORTANT: Show the section
+        
         recommendationSection.classList.remove('hidden');
 
         if (recommendations && recommendations.length > 0) {
@@ -170,7 +162,7 @@
             recommendationCards.innerHTML = cardsHTML;
             noRecommendations.classList.add('hidden');
             
-            // Smooth scroll to recommendations
+            
             recommendationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
             noRecommendations.classList.remove('hidden');
@@ -178,20 +170,18 @@
     }
 
     
-    // --- 2. GET DOM ELEMENTS ---
+   
     const predictionForm = document.getElementById("prediction-form");
     const resultDiv = document.getElementById("prediction-result");
 
     
-    // --- 3. EXECUTABLE CODE ---
     
-    // ** CRITICAL FIX: Clear previous recommendations on page load **
     localStorage.removeItem('currentRecommendations');
     
-    // Set initial language
+
     setLanguage(localStorage.getItem("site-language") || "en");
 
-    // Attach the submit listener
+    
     predictionForm.addEventListener("submit", async (e) => {
         e.preventDefault(); 
         
@@ -199,7 +189,7 @@
         resultDiv.textContent = (currentLang === 'ar') ? '...جاري الحساب' : 'Calculating...';
         resultDiv.style.color = ''; 
         
-        // Hide old recommendations while loading
+        
         document.getElementById("recommendation-section").classList.add('hidden');
         
         const formData = new FormData(predictionForm);
